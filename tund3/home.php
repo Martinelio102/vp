@@ -1,14 +1,52 @@
 <?php
-  $username = "Martin Ilm";
+ //loeme admebaasi login info muutujad
+ require("../../../config.php");
+ //kui kasutaja on vormis andmeid saatnud, siis salvestame andmebaasi
+ $database = "if20_martin_ilm_3";
+ if(isset($_POST["submitnonsense"])){
+	if(!empty($_POST["nonsense"])){
+        //andmebaasi lisamine
+       	//loome andmebaasi ühendus
+		$conn = new mysqli($serverhost, $serverusername, $serverpassword, $database);
+		//valmistamine ette SQL käsu
+		$stmt = $conn->prepare("INSERT INTO nonsense (nonsenseidea) VALUES(?)");
+		echo $conn->error;
+		//s - string, i - integer, d - decimal
+		$stmt->bind_param("s", $_POST["nonsense"]);
+		$stmt->execute();
+		//käsk ja ühendus sulgeda
+		$stmt->close();
+		$conn->close();
+	}
+}
+
+//ongi andmebaasist loetud 
+ 
+ //loeme andmebaasist
+ $nonsensehtml = "";
+ $conn = new mysqli($serverhost, $serverusername, $serverpassword, $database);
+ $stmt = $conn->prepare("SELECT nonsenseidea FROM nonsense");
+ echo $conn->error;
+ //seome tulemuse mingi muutujaga
+ $stmt->bind_result($nonsensefromdb);
+ $stmt->execute();
+ //võtam, kuni on
+ while($stmt->fetch()){
+	 //<p> suvaline mõte </p>
+	 $nonsensehtml .= "<p>" .$nonsensefromdb ."</p>"; 
+ }
+ 
+ 
+ $username = "Martin Ilm";
   $fulltimenow = date("d.m.Y H:i:s");
   $hournow = date("H");
   $partofday = "lihtsalt aeg";
   
   //vaatame, mida vormist serverile saadetakse
-  var_dump($_POST);
+  //var_dump($_POST);
   
-  $weekdayNamesET = ["esmaspäev", "teisipäev", "kolmapäev", "neljapäev", "reede", "laupäev", "pühapäev"];
-  $monthNamesET = ["jaanuar", "veebruar", "märts", "aprill", "mai", "juuni", "juuli", "august", "september", "oktoober", "november", "detsember"];
+  $weekdaynameset = ["esmaspäev", "teisipäev", "kolmapäev", "neljapäev", "reede", "laupäev", "pühapäev"];
+  $monthnameset = ["jaanuar", "veebruar", "märts", "aprill", "mai", "juuni", "juuli", "august", "september", "oktoober", "november", "detsember"];
  
 //küsime nädalapäeva
 $weeldaynow = date("N");
@@ -111,6 +149,7 @@ for($i = 0; $i < $piccount; $i ++){
 	<input type="text" name="nonsense" placeholder="mõttekoht">
 	<input type="submit" value="Saada ära!" name="submitnonsense"> 
   </form>
-  
+ <hr>
+<?php echo $nonsensehtml; ?> 
 </body>
 </html>
